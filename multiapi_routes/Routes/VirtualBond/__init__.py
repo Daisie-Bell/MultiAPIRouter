@@ -75,7 +75,7 @@ class Virtual_Bond(APIRouter):
         rule_check = check_rules(rule_list=parameters, row_rest=virtual_bond)
         if rule_check is not True:
             raise HTTPException(status_code=400, detail=f"Missing or invalid parameters: {rule_check}")
-        #self.apis.read_items(token,id=virtual_bond["id"])
+
         # If the token is allowed, create the virtual_bond model
         if token.is_allow(permission):
             try:
