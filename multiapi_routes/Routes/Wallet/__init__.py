@@ -49,7 +49,6 @@ class Wallets(APIRouter):
                 if token.is_allow(temp):
                     if _.author == token.token:
                         items.append(_)
-            #print(item)
             if not items:
                 raise HTTPException(status_code=404, detail="No items found.")
             return items
