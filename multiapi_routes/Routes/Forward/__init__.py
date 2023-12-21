@@ -20,6 +20,8 @@ from multiapi_routes.Routes.VirtualBond import Virtual_Bond
 
 load_dotenv()
 
+bk = os.environ['CELERY_BROKER_URL']
+
 class ConnectionManager:
     """Class defining socket events"""
     def __init__(self):
@@ -67,70 +69,24 @@ class forward(APIRouter):
         self.name = "froward"
         bk = os.environ['CELERY_BROKER_URL']
         self.vb = Virtual_Bond()
-        if bk == None:
+        if bk is None:
             raise HTTPException(status_code=404, detail="No CELERY_BROKER_URL Found")
-        self.celery = Celery('tasks', broker=bk)
+        self.celery = Celery('tasks', broker=bk, backend=bk)
         self.add_api_route("/forward", self.create_item, methods=["POST"], dependencies=[Depends(login)])
         self.add_api_route("/forward", self.Websocket_Example, methods=["GET"])
         
     
     def create_item(self,model : str,arg : Dict , token: str = Depends(login)):
         self.vb.read_items(token=token,id=model)
-        task = self.celery.send_task('__start__.brain_task', args=(arg))
-        while task.status() == "DONE":
-            pass
+        task = self.celery.send_task('multiapi.brain_task', args=(model, token.token, arg))
+        print(task.id)
+        while task.status != "SUCCESS":
+            print(task.status,end="\r")
         return task.get()
 
     def Websocket_Example(self):
-        return HTMLResponse("""
-    <!DOCTYPE html>
-    <html>
-        <head>
-            <title>Chat</title>
-        </head>
-        <body>
-            <h1>WebSocket Chat</h1>
-            <label>Model ID: <input type="text" id="modelId" autocomplete="off" value="foo"/></label>
-            <label>Token: <input type="text" id="token" autocomplete="off" value="some-key-token"/></label>
-            <button onclick="connect(event)">Connect</button>
-            <form action="" onsubmit="sendMessage(event)">
-                <input type="text" id="messageText" autocomplete="off"/>
-                <button>Send</button>
-            </form>
-            <ul id='messages'>
-            </ul>
-            <script>
-                var ws = null;
-                function connect(event) {
-                    var modelId = document.getElementById("modelId").value;
-                    var token = document.getElementById("token").value;
-                    var url = window.location.host;
-                    ws = new WebSocket("ws://"+window.location.host+"/v1/multiapi/"+modelId+"/stream?token="+token);
-                    ws.onmessage = function(event) {
-                        var messages = document.getElementById('messages');
-                        var message = document.createElement('li');
-                        var content = document.createTextNode(event.data);
-                        message.appendChild(content);
-                        messages.appendChild(message);
-                    };
-                }
-                function sendMessage(event) {
-                    var input = document.getElementById("messageText");
-                    if (ws.readyState === WebSocket.OPEN) {
-                        ws.send(input.value);
-                        input.value = '';
-                    } else {
-                        alert("WebSocket connection is closed. Please connect first.");
-                        ws.close();
-                    }
-                    event.preventDefault();
-                }
-            </script>
-        </body>
-    </html>
-    """)
-
-bk = os.environ['CELERY_BROKER_URL']
+        template = open("html/websocket_client.html","r").read()
+        return HTMLResponse(template)
 
 forward_ = forward()
 

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+        <h1>WebSocket Chat</h1>
+        <label>Model ID: <input type="text" id="modelId" autocomplete="off" value="foo"/></label>
+        <label>Token: <input type="text" id="token" autocomplete="off" value="some-key-token"/></label>
+        <button onclick="connect(event)">Connect</button>
+        <form action="" onsubmit="sendMessage(event)">
+            <input type="text" id="messageText" autocomplete="off"/>
+            <button>Send</button>
+        </form>
+        <ul id='messages'>
+        </ul>
+        <script>
+            var ws = null;
+            function connect(event) {
+                var modelId = document.getElementById("modelId").value;
+                var token = document.getElementById("token").value;
+                var url = window.location.host;
+                ws = new WebSocket("ws://"+window.location.host+"/v1/multiapi/"+modelId+"/stream?token="+token);
+                ws.onmessage = function(event) {
+                    var messages = document.getElementById('messages');
+                    var message = document.createElement('li');
+                    var content = document.createTextNode(event.data);
+                    message.appendChild(content);
+                    messages.appendChild(message);
+                };
+            }
+            function sendMessage(event) {
+                var input = document.getElementById("messageText");
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(input.value);
+                    input.value = '';
+                } else {
+                    alert("WebSocket connection is closed. Please connect first.");
+                    ws.close();
+                }
+                event.preventDefault();
+            }
+        </script>
+    </body>
+</html>
