@@ -65,7 +65,6 @@ class Configs(APIRouter):
                     raise HTTPException(status_code=404,detail="No items found.")
                 if item.count() == 0:
                     raise HTTPException(status_code=404,detail="No items found.")
-                print(item)
                 item = item.first()
                 if not item:
                     raise HTTPException(status_code=404, detail=f"Item with id {id} not found.")
