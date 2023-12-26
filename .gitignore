@@ -1,1 +1,4 @@
-pyproject.toml
+/MultiAPIRouter/.pytest_cache
+__pycache__
+*.lock
+poetry.lock
