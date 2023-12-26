@@ -16,8 +16,8 @@ class MultiAPIRouter(APIRouter):
         self.__dict__.update({"config": Configs()})
         self.__dict__.update({"forward": forward_})
 
-        self.include_router(self.wallet, prefix="/wallet")
-        self.include_router(self.virtual_bond, prefix="/virtual_bond")
-        self.include_router(self.skeleton, prefix="/skeleton")
-        self.include_router(self.config, prefix="/config")
-        self.include_router(self.forward, prefix="/forward")
+        self.include_router(self.wallet)
+        self.include_router(self.virtual_bond)
+        self.include_router(self.skeleton)
+        self.include_router(self.config)
+        self.include_router(self.forward)
