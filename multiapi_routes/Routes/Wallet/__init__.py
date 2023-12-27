@@ -27,7 +27,7 @@ class Wallets(APIRouter):
         self.global_local = "wallet.*"
         super().__init__(*args, **kwargs)
 
-        print(VAuth().register("wallet",["read","create","update","delete"],True))
+        print(VAuth().register_permission("wallet",["read","create","update","delete"],True))
         # Adding routes for different HTTP methods
         self.add_api_route("/wallets", self.read_items, methods=["GET"], dependencies=[Depends(login)])
         self.add_api_route("/wallets", self.create_item, methods=["POST"], dependencies=[Depends(login)])
