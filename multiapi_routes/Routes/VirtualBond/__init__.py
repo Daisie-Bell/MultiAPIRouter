@@ -28,7 +28,7 @@ class Virtual_Bond(APIRouter):
         self.global_local = "virtual_bond.*"
         super().__init__(*args, **kwargs)
 
-        print(VAuth().register("virtual_bond",["read","create","update","delete"],True))
+        print(VAuth().register_permission("virtual_bond",["read","create","update","delete"],True))
         # Adding routes for different HTTP methods
         self.add_api_route("/virtual/bonds", self.read_items,  methods=["GET"], dependencies=[Depends(login)])
         self.add_api_route("/virtual/bonds", self.create_item, methods=["POST"], dependencies=[Depends(login)])

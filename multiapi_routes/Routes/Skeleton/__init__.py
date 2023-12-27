@@ -28,7 +28,7 @@ class Skeleton(APIRouter):
         super().__init__(*args, **kwargs)
         self.name = "skeleton"
 
-        print(VAuth().register("skeleton",["read","create","update","delete"],True))
+        print(VAuth().register_permission("skeleton",["read","create","update","delete"],True))
         # Adding routes for different HTTP methods
         self.add_api_route("/skeletons", self.read_items, methods=["GET"], dependencies=[Depends(login)])
         self.add_api_route("/skeletons", self.create_item, methods=["POST"], dependencies=[Depends(login)])

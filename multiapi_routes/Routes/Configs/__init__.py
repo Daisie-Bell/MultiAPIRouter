@@ -31,7 +31,7 @@ class Configs(APIRouter):
 
         self.skeletons = Skeleton()
 
-        print(VAuth().register("config",["read","create","update","delete"],True))
+        print(VAuth().register_permission("config",["read","create","update","delete"],True))
         # Adding routes for different HTTP methods
         self.add_api_route("/configs", self.read_items, methods=["GET"], dependencies=[Depends(login)])
         self.add_api_route("/configs", self.create_item, methods=["POST"], dependencies=[Depends(login)])
