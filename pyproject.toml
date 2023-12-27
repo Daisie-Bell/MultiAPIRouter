@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "<3.12,>=3.10"
-vauth = {git = "https://github.com/Vortex5Root/Redis_Auth.git"}
+vauth = {git = "https://github.com/Daisie-Bell/Vauth.git"}
 fastapi = "^0.103.2"
 redis-om = "^0.2.1"
 celery = {extras = ["redis"], version = "^5.3.1"}
