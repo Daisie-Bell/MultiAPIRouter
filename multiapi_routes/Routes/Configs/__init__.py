@@ -50,7 +50,7 @@ class Configs(APIRouter):
                 temp = permission.copy()
                 temp.append(self.permissions["read"].format(_.id))
                 temp.append(self.permissions["all"].format(_.id))
-                if token.is_allow(temp):
+                if token.has_permission(temp):
                     items.append(_)
             if not items:
                 raise HTTPException(status_code=404, detail="No items found.")
@@ -59,7 +59,7 @@ class Configs(APIRouter):
         else:
             permission.append(self.permissions["read"].format(id))
             permission.append(self.permissions["all"].format(id))
-            if token.is_allow(permission):
+            if token.has_permission(permission):
                 item = ConfigModel.find(ConfigModel.id == id)
                 if item is None:
                     raise HTTPException(status_code=404,detail="No items found.")
@@ -86,14 +86,14 @@ class Configs(APIRouter):
             raise HTTPException(status_code=400, detail=f"Function name {config['function_name']} not found in api {config['api_id']}")
         # If the token is allowed, create the config model
         permission.append(self.permissions["create"].format(config["id"]))  
-        if token.is_allow(permission):
+        if token.has_permission(permission):
             try:
                 new_config = ConfigModel(**config)
                 new_config.save()
             except Exception as e:
                 raise HTTPException(status_code=400, detail=str(e))
             # If the token is not allowed, add permission
-            if not token.is_allow(f"config.{config['id']}"):
+            if not token.has_permission(f"config.{config['id']}"):
                 VAuth().add_permission_rg("ConfigModel",config["id"])
                 token.add_permission(f"{self.name}.{config['id']}")
             return {"info":"ConfigModel Added!","status":"Success"}
@@ -112,7 +112,7 @@ class Configs(APIRouter):
         permission.append(self.permissions["update"].format(item["id"]))
         permission.append(self.permissions["all"].format(item["id"]))
         # If the token is allowed, update the config model
-        if token.is_allow(permission):
+        if token.has_permission(permission):
             try:
                 config_model = ConfigModel.find(ConfigModel.id == item['id']).first()
                 if not config_model:
@@ -132,7 +132,7 @@ class Configs(APIRouter):
         permission.append(self.permissions["delete"].format(id))
         permission.append(self.permissions["all"].format(id))
         # If the token is allowed, delete the config model
-        if token.is_allow(permission):
+        if token.has_permission(permission):
             if not check_config(id):
                 raise HTTPException(status_code=404, detail=f"ConfigModel with id {id} doesn't exist!")
             try:

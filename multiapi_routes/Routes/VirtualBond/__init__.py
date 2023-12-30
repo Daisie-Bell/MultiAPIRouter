@@ -47,7 +47,7 @@ class Virtual_Bond(APIRouter):
                 temp = permission.copy()
                 temp.append(self.permissions["read"].format(_.id))
                 temp.append(self.permissions["all"].format(_.id))
-                if token.is_allow(temp):
+                if token.has_permission(temp):
                     items.append(_) 
             if not items:
                 raise HTTPException(status_code=404, detail="No items found.")
@@ -62,7 +62,7 @@ class Virtual_Bond(APIRouter):
             [permission.append(_) for _ in temp]
             # If id is provided, return the item with the given id
             item = VirtualBond.find(VirtualBond.id == id).first()
-            if not token.is_allow(permission):
+            if not token.has_permission(permission):
                 raise HTTPException(status_code=403, detail="Your token isn't allowed to perform this action.")
             return item
 
@@ -77,14 +77,14 @@ class Virtual_Bond(APIRouter):
             raise HTTPException(status_code=400, detail=f"Missing or invalid parameters: {rule_check}")
 
         # If the token is allowed, create the virtual_bond model
-        if token.is_allow(permission):
+        if token.has_permission(permission):
             try:
                 new_virtual_bond = VirtualBond(**virtual_bond)
                 new_virtual_bond.save()
             except Exception as e:
                 raise HTTPException(status_code=400, detail=str(e))
             # If the token is not allowed, add permission
-            if not token.is_allow(f"virtual_bond.{virtual_bond['id']}"):
+            if not token.has_permission(f"virtual_bond.{virtual_bond['id']}"):
                 VAuth().add_permission_rg("virtual_bond",virtual_bond["id"])
                 token.add_permission(f"{self.name}.{virtual_bond['id']}")
             return {"info":f"virtual_bond ({virtual_bond['id']}) Added!","status":"Success"}
@@ -103,7 +103,7 @@ class Virtual_Bond(APIRouter):
         if rule_check is not True:
             raise HTTPException(status_code=400, detail=f"Missing or invalid parameters: {rule_check}")
         # If the token is allowed, update the virtual_bond model
-        if token.is_allow(permission):
+        if token.has_permission(permission):
             try:
                 virtual_bond_model = VirtualBond.find(VirtualBond.id == item['id']).first()
                 if not virtual_bond_model:
@@ -121,7 +121,7 @@ class Virtual_Bond(APIRouter):
     def delete_item(self, id: str, token: str = Depends(login)):
         permission = [self.permissions["all"].format("*"),self.permissions["delete"].format("*"),self.permissions["delete"].format(id)]
         # If the token is allowed, delete the virtual_bond model
-        if token.is_allow(permission):
+        if token.has_permission(permission):
             if not check_virtual_bond(id):
                 raise HTTPException(status_code=404, detail=f"VirtualBond with id {id} doesn't exist!")
             try:

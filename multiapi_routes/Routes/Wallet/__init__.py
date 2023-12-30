@@ -46,7 +46,7 @@ class Wallets(APIRouter):
                 temp = permission.copy()
                 temp.append(self.permissions["read"].format(_.id))
                 temp.append(self.permissions["all"].format(_.id))
-                if token.is_allow(temp):
+                if token.has_permission(temp):
                     if _.author == token.token:
                         items.append(_)
             if not items:
@@ -57,7 +57,7 @@ class Wallets(APIRouter):
                 raise HTTPException(status_code=404, detail=f"Wallet with id {id} doesn't exist!")
             permission.append(self.permissions["read"].format(id))
             permission.append(self.permissions["all"].format(id))
-            if not token.is_allow(permission):
+            if not token.has_permission(permission):
                 raise HTTPException(status_code=403, detail="Your token isn't allowed to perform this action.")
             # If id is provided, return the item with the given id
             item = Wallet.find(Wallet.id == id).first()
@@ -73,14 +73,14 @@ class Wallets(APIRouter):
         rule_check = check_rules(rule_list=parameters, row_rest=wallet)
         if rule_check is not True:
             raise HTTPException(status_code=400, detail=f"Missing or invalid parameters: {rule_check}")
-        if not token.is_allow(permission):
+        if not token.has_permission(permission):
             raise HTTPException(status_code=403, detail="Your token isn't allowed to perform this action.")
         if Wallet.find(Wallet.author == token.token).count() != 0:
             raise HTTPException(status_code=403, detail="You already have a wallet!")
         wallet.update({"author":token.token})
         item = Wallet(**wallet)
         item.save()
-        if not token.is_allow(f"{self.name}.{item.id}"):
+        if not token.has_permission(f"{self.name}.{item.id}"):
             VAuth().add_permission_rg(self.name,item.id)
             token.add_permission(f"{self.name}.{item.id}")
         return item
@@ -91,7 +91,7 @@ class Wallets(APIRouter):
         item = Wallet.find(Wallet.author == token.token).first()
         if not item:
             raise HTTPException(status_code=404, detail=f"You don't have a wallet!")
-        if not token.is_allow(permission):
+        if not token.has_permission(permission):
             raise HTTPException(status_code=403, detail="Your token isn't allowed to perform this action.")
         permission.append(self.permissions["update"].format(item.id))
         permission.append(self.permissions["all"].format(item.id))
@@ -105,7 +105,7 @@ class Wallets(APIRouter):
             raise HTTPException(status_code=404, detail=f"Wallet with id {id} doesn't exist!")
         permission.append(self.permissions["delete"].format(id))
         permission.append(self.permissions["all"].format(id))
-        if not token.is_allow(permission):
+        if not token.has_permission(permission):
             raise HTTPException(status_code=403, detail="Your token isn't allowed to perform this action.")
         item = Wallet.find(Wallet.author == token.token).first()
         if id == "all":

@@ -74,7 +74,6 @@ class forward(APIRouter):
         self.celery = Celery('tasks', broker=bk, backend=bk)
         self.add_api_route("/forward", self.create_item, methods=["POST"], dependencies=[Depends(login)])
         self.add_api_route("/forward", self.Websocket_Example, methods=["GET"])
-        
     
     def create_item(self,model : str,arg : Dict , token: str = Depends(login)):
         self.vb.read_items(token=token,id=model)
