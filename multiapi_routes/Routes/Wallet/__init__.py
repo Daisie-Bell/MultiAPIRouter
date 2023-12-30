@@ -81,7 +81,7 @@ class Wallets(APIRouter):
         item = Wallet(**wallet)
         item.save()
         if not token.has_permission(f"{self.name}.{item.id}"):
-            VAuth().add_permission_rg(self.name,item.id)
+            VAuth().add_permission(self.name,item.id)
             token.add_permission(f"{self.name}.{item.id}")
         return item
     

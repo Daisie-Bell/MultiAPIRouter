@@ -85,7 +85,7 @@ class Virtual_Bond(APIRouter):
                 raise HTTPException(status_code=400, detail=str(e))
             # If the token is not allowed, add permission
             if not token.has_permission(f"virtual_bond.{virtual_bond['id']}"):
-                VAuth().add_permission_rg("virtual_bond",virtual_bond["id"])
+                VAuth().add_permission("virtual_bond",virtual_bond["id"])
                 token.add_permission(f"{self.name}.{virtual_bond['id']}")
             return {"info":f"virtual_bond ({virtual_bond['id']}) Added!","status":"Success"}
         else:
